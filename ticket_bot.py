@@ -15,8 +15,6 @@ def extract_links(html):
         buttons = tbody[0].find_all('a', {'class': 'button_cphhalf'})
         for button in buttons:
             if 'disabled' not in button['class']:
-                with open('html/non_disabled_button.html', 'wb') as fh:
-                    fh.write(html)
                 print('Found non-disabled button!')
                 webbrowser.open(f'{LINK}/{button.get("href")}', new=2)
                 webbrowser.open(LINK, new=2)
