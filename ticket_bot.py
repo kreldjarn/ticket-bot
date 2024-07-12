@@ -4,14 +4,23 @@ import requests
 from bs4 import BeautifulSoup as bs
 import webbrowser
 
+LINK = 'https://secure.onreg.com/onreg2/bibexchange/?eventid=6277'
+
 def extract_links(html):
     soup = bs(html, 'html.parser')
-    body = soup.find(id='mainBody')
-    rows = body.find_all('table', {'class', 'table-hover'})[0]\
-               .find_all('tbody')[0]\
-               .find_all('tr')
 
-    links = [f"{r.find_all('a')[0].get('href')}" for r in rows]
+    tbody = soup.find_all('tbody')
+    links = []
+    if len(tbody) > 0:
+        buttons = tbody[0].find_all('a', {'class': 'button_cphhalf'})
+        for button in buttons:
+            if 'disabled' not in button['class']:
+                with open('html/non_disabled_button.html', 'wb') as fh:
+                    fh.write(html)
+                print('Found non-disabled button!')
+                webbrowser.open(f'{LINK}/{button.get("href")}', new=2)
+                webbrowser.open(LINK, new=2)
+                links.append(button.get('href'))
 
     return links
 
@@ -21,13 +30,15 @@ if __name__ == '__main__':
 
     while True:
 
-        page = requests.get('')
+        page = requests.get(LINK)
         
         links = extract_links(page.content)
 
         for link in links:
             if link not in seen_tix:
+                webbrowser.open(f'https://secure.onreg.com/onreg2/bibexchange/{link}', new=2)
                 webbrowser.open(link, new=2)
+                seen_tix.add(link)
                 s = f'!! NEW:   {link}   !!'
                 print('!' * len(s))
                 print('!!' + ' ' * (len(s) - 4) + '!!')
